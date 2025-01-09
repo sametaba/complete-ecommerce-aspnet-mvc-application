@@ -6,6 +6,8 @@ namespace eTicketsQ.Models
     {
         [Key]
         public int Id { get; set; }
+
+
         [Display(Name= "Cinema Logo")]
         public string Logo { get; set; }
 

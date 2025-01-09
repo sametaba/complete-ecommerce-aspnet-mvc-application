@@ -1,47 +1,14 @@
-﻿using eTicketsQ.Models;
+﻿using eTicketsQ.Data.Base;
+using eTicketsQ.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace eTicketsQ.Data.Services
 {
-    public class ActorsService : IActorsService
+    public class ActorsService : EntityBaseRepository<Actor>,  IActorsService
     {
         private readonly AppDbContext _context;
 
-        public ActorsService(AppDbContext context)
-        {
-            _context = context;
-        }
+        public ActorsService(AppDbContext context) : base(context) { }
 
-
-
-        public async Task AddAsync(Actor actor)
-        {
-            await _context.Actors.AddAsync(actor);
-            await _context.SaveChangesAsync();
-        }
-
-        void IActorsService.Delete(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IEnumerable<Actor>> GetAllAsync()
-        {
-            var result = await _context.Actors.ToListAsync();
-            return result;
-        }
-
-        public async Task<Actor> GetByIdAsync(int id)
-        {
-            var result = await _context.Actors.FirstOrDefaultAsync(n=> n.ActorId == id);
-            return result;
-        }
-
-        public async Task<Actor> UpdateAsync(int id, Actor newActor)
-        {
-            _context.Update(newActor);
-            await _context.SaveChangesAsync();
-            return newActor;
-        }
     }
 }
