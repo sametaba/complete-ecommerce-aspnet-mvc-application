@@ -1,8 +1,12 @@
 ﻿using eTicketsQ.Data;
+using eTicketsQ.Data.Static;
 using eTicketsQ.Data.ViewModels;
 using eTicketsQ.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 
 namespace eTicketsQ.Controllers
 {
@@ -17,6 +21,12 @@ namespace eTicketsQ.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
+        }
+
+        public async Task<IActionResult> Users()
+        {
+            var users= await _context.Users.ToListAsync();
+            return View(users);
         }
         public IActionResult Login() => View(new LoginVM());
 
@@ -43,6 +53,39 @@ namespace eTicketsQ.Controllers
 
             TempData["Error"] = "Wrong credentials, try again.";
             return View(loginVM);
+        }
+
+        public IActionResult Register() => View(new RegisterVM());
+
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterVM registerVM)
+        {
+            if (!ModelState.IsValid) return View(registerVM);
+            var user = await _userManager.FindByEmailAsync(registerVM.EmailAddress);
+            if(user!= null)
+            {
+                TempData["Error"] = "This email address is already in use.";
+                return View(registerVM);
+            }
+            var newUser = new ApplicationUser()
+            {
+                FullName = registerVM.FullName,
+                Email = registerVM.EmailAddress,
+                UserName = registerVM.EmailAddress
+            };
+            var newUserResponse = await _userManager.CreateAsync(newUser, registerVM.Password);
+            if (newUserResponse.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(newUser, UserRoles.User);
+                return View("RegisterCompleted");
+            }
+            return View("Not Found");
+        }
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Movies");
         }
     }
 }
