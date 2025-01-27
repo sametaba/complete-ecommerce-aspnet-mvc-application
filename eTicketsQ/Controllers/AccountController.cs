@@ -70,6 +70,7 @@ namespace eTicketsQ.Controllers
             var newUser = new ApplicationUser()
             {
                 FullName = registerVM.FullName,
+
                 Email = registerVM.EmailAddress,
                 UserName = registerVM.EmailAddress
             };
